@@ -57,7 +57,7 @@ public class QuestPlus {
 
     QuestPlus(int F, ArrayList stimD, ArrayList paramD,  double stopC) {
         /*
-            * stimD needs to be an ArrayList containing at least one ArrayList
+            * paramD needs to be an ArrayList containing at least one ArrayList
 		 * So this needs to
 		 * a) create param domain by combining all the possible parameter values
 		 * b) ditto for priors
@@ -67,8 +67,11 @@ public class QuestPlus {
         } else {
             return;
         }
+        stimDomain = stimD;
+        
         //TODO: add check paramD is ArrayList. Should have vF.getNParam members.
-
+        // aslo that stimDomain is an ArrayList
+        
         // set up uniform priors.
         prior = new ArrayList(paramD.size());
         ListIterator iter = paramD.listIterator();
@@ -133,14 +136,14 @@ public class QuestPlus {
                         end
                     end
         */
-        likelihoods = new double [stimDomain.size()][paramDomain.size()][2];
+        likelihoods = new double [paramDomain.size()][stimDomain.size()][2];
         double[] vals = new double[vF.getNParams()]; 
         ArrayList valsA ;
-        iter = stimDomain.listIterator();
+        iter = paramDomain.listIterator();
         int ii=0;
         int jj=0;
         while (iter.hasNext()) {
-            ListIterator iter3 = paramDomain.listIterator();
+            ListIterator iter3 = stimDomain.listIterator();
             iter2= ((ArrayList)iter.next()).listIterator();
             int i=0;
             while (iter2.hasNext()) {
