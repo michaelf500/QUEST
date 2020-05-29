@@ -44,7 +44,7 @@ public class QuestPlus {
     int stimSelectionMethod = STIM_MIN;
     int stimSelectionParam = 2;
     int stimConstrainToNOfPrev[] = {}; //TODO
-    float[][] prior; //containing probability of each parameter-combination
+    List prior; //containing probability of each parameter-combination
     float[][] likelihoods;
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
@@ -68,17 +68,83 @@ public class QuestPlus {
             return;
         }
         //TODO: add check paramD is ArrayList
+
+        // set up uniform priors.
+        prior = new ArrayList(paramD.size());
+        ListIterator iter = paramD.listIterator();
+        while (iter.hasNext()) {
+            int nn = ((List)iter.next()).size();
+            ArrayList al = new ArrayList(nn);
+            for (int i =0; i< nn; i++) {
+                al.add(1.0/nn);
+            }
+            prior.add(al);
+        }
+        if (prior.size() > 1) {
+            prior = cartesianProduct(prior);
+            make2D(prior);
+        }
+        ArrayList A = new ArrayList(prior.size());
+        iter = prior.listIterator();
+        ListIterator iter2;
+        // multiply elements together
+        double sum=0;
+        while (iter.hasNext()) {
+            double t = 1;
+            ArrayList row = (ArrayList)iter.next();
+            iter2 = row.listIterator();
+            while (iter2.hasNext()) {
+                t*=(double)iter2.next();
+            }
+            A.add(t);
+            sum+=t;
+        }
+        // normalise by total sum
+        iter = A.listIterator();
+        while (iter.hasNext()) {
+            double t = (double)iter.next();
+            t /= sum;
+            iter.set(t);
+        }
+        prior = A;
+
+
+
         if (paramD.size() ==1 ){
             paramDomain = paramD;
         } else { //make combination matrix
             paramDomain = cartesianProduct(paramD); 
             make2D(paramDomain);
         }
-        paramDomain = paramD;
-    
+        
+        
+        /*
+        % if response domain is binary, and function only
+                    % provides one output, we'll assume that the the
+                    % probability of the first resposne is the complement
+                    % of the second
+        
+                            obj.likelihoods = nan(length(obj.stimDomain), length(obj.paramDomain), length(obj.respDomain));
+                    for i = 1:size(obj.stimDomain,2)
+                        for j = 1:size(obj.paramDomain,2)
+                            x = num2cell([obj.stimDomain(:,i); obj.paramDomain(:,j)]);
+                            y = obj.F(x{:});
+                            obj.likelihoods(i,j,:) = [1-y; y]; % complement [backwards format versus above???]
+                        end
+                    end
+        */
+        //double[][][] likelihoods = new double [stimDomain.size()][paramDomain.size()][2];
+        //for (int i =0;i<stimDomain.size()
+    // TODO: Need to think about this. 
+    /* I think want first dim to be the length of all the parameter
+       combinations, so mu1,sd1; mu1,sd2; mu2,sd1; mu2,sd2  etc.
+       and need to calculate F for every value in stimDomain for each of these 
+       combinations. So we need to specify for model that there are N parameters 
+      ( 4 four the gauss)
+    */
     }
-    void printParamDomain() {
-        ListIterator iter = paramDomain.listIterator();
+    void printList(List l) {
+        ListIterator iter = l.listIterator();
         
         while (iter.hasNext()) {
             System.out.println(iter.next());
