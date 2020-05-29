@@ -10,5 +10,5 @@ package uk.ac.ncl.quest;
  * @author Michael
  */
 public interface CDF {
-    double getValue(double x,double mean , double sd, double lambda, double gamma);
+    double getValue(double x,double[] vals);
 }

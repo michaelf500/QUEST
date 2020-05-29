@@ -9,7 +9,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 /**
  * A cumulative normal distribution, with 4 parameters
  * mean, sd, lambda (lapse rate), gamma (probability of guessing)
- * getVal(x,m,s,l,g) returns g + (1-l-g)normalPSD(x:m,s)
+ * getVal(x,[m,s,l,g]) returns g + (1-l-g)normalPSD(x:m,s)
  * @author Michael
  */
 public class NormCDF implements CDF{
@@ -17,7 +17,23 @@ public class NormCDF implements CDF{
 //    NormCDF(double m, double s) {
 //        nd = ;
 //    }
-    public double getValue(double x,double m,double s, double l,double g) {
+    public double getValue(double x,double[] vals) {
+        double m=0;
+        double s=0;
+        double l=0;
+        double g=0.5;
+        if (vals.length >=4) {
+            g=vals[3]; 
+        }
+        if  (vals.length >=3) {
+            l=vals[2];
+        }
+        if  (vals.length >=2) {
+            s=vals[1];
+        } 
+        if  (vals.length >=1) {
+            m=vals[0];
+        }                
         return (g+(1-l-g)*(new NormalDistribution(m,s)).cumulativeProbability(x));
     }
             

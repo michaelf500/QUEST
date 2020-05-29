@@ -55,7 +55,7 @@ public class QuestPlus {
     QuestPlus() {
     }
 
-    QuestPlus(int F, double[][] stimD, double[] paramD, int stopR, double stopC) {
+    QuestPlus(int F, ArrayList stimD, ArrayList paramD, int stopR, double stopC) {
         /*
 		 * So this needs to
 		 * a) create param domain by combining all the possible parameter values
@@ -80,6 +80,12 @@ public class QuestPlus {
         List d = new ArrayList(Arrays.asList(b,c));
         List conc = cartesianProduct(Arrays.asList(a, d));
         
+        make2D(conc);
+            System.out.println(conc);
+
+    }
+
+    void make2D(List conc) {
         /* so the point of the next convoluted bit
         * is to convert into an Array of Array, because otherwise
         * so [ [[1,2,3],4], ...  becomes [ [1,2,3,4], ...
@@ -108,10 +114,7 @@ public class QuestPlus {
                 iter.set(tmpL);                   
             }
         }
-            System.out.println(conc);
-
     }
-
     protected <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
         // stolen from https://stackoverflow.com/questions/714108/cartesian-product-of-arbitrary-sets-in-java/10083452#10083452
         List<List<T>> resultLists = new ArrayList<List<T>>();
