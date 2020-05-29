@@ -17,6 +17,9 @@ public class NormCDF implements CDF{
 //    NormCDF(double m, double s) {
 //        nd = ;
 //    }
+    public int getNParams() {
+    return 4; // no. of values getValue is expecting in vals.
+    } 
     public double getValue(double x,double[] vals) {
         double m=0;
         double s=0;
