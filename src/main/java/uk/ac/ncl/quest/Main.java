@@ -25,11 +25,16 @@ public class Main {
     }
     public static void main(String[] args) {
 
-        ArrayList stimD = linspace(-10,10,50);
-        ArrayList paramD = linspace(-8,8,30);
+        ArrayList a = linspace(-10,10,50);
+        ArrayList b = linspace(-10,10,50);
+        ArrayList paramD = new ArrayList();
+        paramD.add(a);
+        paramD.add(b);
+        ArrayList stimD =linspace(-8,8,30);
         
-        System.err.println(stimD);
-//        QuestPlus qpA = new QuestPlus();
+        
+        QuestPlus qpA = new QuestPlus(QuestPlus.GAUSSIAN_MODEL,stimD,paramD,2.5);
+        qpA.printParamDomain();
 //        qpA.testQuest();
 //        
 //        ArrayList a = new ArrayList(6);

@@ -31,10 +31,10 @@ public class QuestPlus {
     static final int STIM_MIN_OR_RAND = 4;
     int F = GAUSSIAN_MODEL;
     CDF vF;
-    float[][] stimDomain;
+    List paramDomain; //vector of possible stimulus values.
     /* vector/ matrix of possible values (mu, sigma etc
 	for the function F. */
-    float[] paramDomain; //vector of possible stimulus values.
+    List stimDomain;
     boolean respDomain; //possible responses. I'm only considering correct/wrong.
     int stopRule = ENTROPY;
     float stopCriterion = 3; // no. of trial or entropy. 
@@ -55,8 +55,9 @@ public class QuestPlus {
     QuestPlus() {
     }
 
-    QuestPlus(int F, ArrayList stimD, ArrayList paramD, int stopR, double stopC) {
+    QuestPlus(int F, ArrayList stimD, ArrayList paramD,  double stopC) {
         /*
+            * stimD needs to be an ArrayList containing at least one ArrayList
 		 * So this needs to
 		 * a) create param domain by combining all the possible parameter values
 		 * b) ditto for priors
@@ -66,9 +67,23 @@ public class QuestPlus {
         } else {
             return;
         }
-
+        //TODO: add check paramD is ArrayList
+        if (paramD.size() ==1 ){
+            paramDomain = paramD;
+        } else { //make combination matrix
+            paramDomain = cartesianProduct(paramD); 
+            make2D(paramDomain);
+        }
+        paramDomain = paramD;
+    
     }
-
+    void printParamDomain() {
+        ListIterator iter = paramDomain.listIterator();
+        
+        while (iter.hasNext()) {
+            System.out.println(iter.next());
+        }
+    }
     void testQuest() {
 
         List x = new ArrayList(Arrays.asList(10,11));
@@ -85,7 +100,7 @@ public class QuestPlus {
 
     }
 
-    void make2D(List conc) {
+    private static void make2D(List conc) {
         /* so the point of the next convoluted bit
         * is to convert into an Array of Array, because otherwise
         * so [ [[1,2,3],4], ...  becomes [ [1,2,3,4], ...
@@ -115,7 +130,7 @@ public class QuestPlus {
             }
         }
     }
-    protected <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
+    private static <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
         // stolen from https://stackoverflow.com/questions/714108/cartesian-product-of-arbitrary-sets-in-java/10083452#10083452
         List<List<T>> resultLists = new ArrayList<List<T>>();
         if (lists.size() == 0) {
