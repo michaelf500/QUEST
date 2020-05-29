@@ -45,7 +45,7 @@ public class QuestPlus {
     int stimSelectionParam = 2;
     int stimConstrainToNOfPrev[] = {}; //TODO
     List prior; //containing probability of each parameter-combination
-    float[][] likelihoods;
+    double[][][] likelihoods;
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
     float[][] posterior;
@@ -67,7 +67,7 @@ public class QuestPlus {
         } else {
             return;
         }
-        //TODO: add check paramD is ArrayList
+        //TODO: add check paramD is ArrayList. Should have vF.getNParam members.
 
         // set up uniform priors.
         prior = new ArrayList(paramD.size());
@@ -133,8 +133,30 @@ public class QuestPlus {
                         end
                     end
         */
-        //double[][][] likelihoods = new double [stimDomain.size()][paramDomain.size()][2];
-        //for (int i =0;i<stimDomain.size()
+        likelihoods = new double [stimDomain.size()][paramDomain.size()][2];
+        double[] vals = new double[vF.getNParams()]; 
+        ArrayList valsA ;
+        iter = stimDomain.listIterator();
+        int ii=0;
+        int jj=0;
+        while (iter.hasNext()) {
+            ListIterator iter3 = paramDomain.listIterator();
+            iter2= ((ArrayList)iter.next()).listIterator();
+            int i=0;
+            while (iter2.hasNext()) {
+                vals[i++]=(double)iter2.next();
+            }
+            jj=0;
+            while (iter3.hasNext()) {
+                double tmpV = vF.getValue((double)iter3.next(),vals);
+                likelihoods[ii][jj][0] = 1-tmpV;
+                likelihoods[ii][jj][1] = tmpV;
+                jj++;
+            }
+            
+            ii++;
+        }
+                    
     // TODO: Need to think about this. 
     /* I think want first dim to be the length of all the parameter
        combinations, so mu1,sd1; mu1,sd2; mu2,sd1; mu2,sd2  etc.
