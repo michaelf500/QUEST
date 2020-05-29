@@ -13,17 +13,28 @@ import java.util.ArrayList;
  */
 public class Main {
 
-    static void add_three(ArrayList A) {
-        A.add(3);
+    static ArrayList linspace(double start,double end, int n) {
+        /**
+         * Creates an ArrayList of n values between start and end (inclusively)
+         */
+        ArrayList output = new ArrayList(n);
+        for (int i =0; i<n; i++) {
+            output.add(start+(end-start)/(n-1)*i);
+        }
+        return output;
     }
     public static void main(String[] args) {
 
-        QuestPlus qpA = new QuestPlus();
-        qpA.testQuest();
+        ArrayList stimD = linspace(-10,10,50);
+        ArrayList paramD = linspace(-8,8,30);
         
-        ArrayList a = new ArrayList(6);
-        System.out.println("three?" + a);
-        add_three(a);
-        System.out.println("three?" + a);
+        System.err.println(stimD);
+//        QuestPlus qpA = new QuestPlus();
+//        qpA.testQuest();
+//        
+//        ArrayList a = new ArrayList(6);
+//        System.out.println("three?" + a);
+//        add_three(a);
+//        System.out.println("three?" + a);
     }
 }
