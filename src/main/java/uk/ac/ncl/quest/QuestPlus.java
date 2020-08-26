@@ -48,7 +48,7 @@ public class QuestPlus {
     double[][][] likelihoods;
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
-    float[][] posterior;
+    List posterior;
     List<Double> historyStim;
     List<Boolean> historyResp;
 
@@ -136,12 +136,18 @@ public class QuestPlus {
                         end
                     end
         */
-        likelihoods = new double [paramDomain.size()][stimDomain.size()][2];
+    
+    /* I think want first dim to be the length of all the parameter
+       combinations, so mu1,sd1; mu1,sd2; mu2,sd1; mu2,sd2  etc.
+       and need to calculate F for every value in stimDomain for each of these 
+       combinations. So we need to specify for model that there are N parameters 
+      ( 4 four the gauss)
+    */    likelihoods = new double [paramDomain.size()][stimDomain.size()][2];
         double[] vals = new double[vF.getNParams()]; 
         ArrayList valsA ;
         iter = paramDomain.listIterator();
         int ii=0;
-        int jj=0;
+        int jj;
         while (iter.hasNext()) {
             ListIterator iter3 = stimDomain.listIterator();
             iter2= ((ArrayList)iter.next()).listIterator();
@@ -159,14 +165,57 @@ public class QuestPlus {
             
             ii++;
         }
+        posterior = new ArrayList(prior.size());
+        iter = prior.listIterator();
+        while (iter.hasNext()) {
+            posterior.add(iter.next());
+        }
                     
-    // TODO: Need to think about this. 
-    /* I think want first dim to be the length of all the parameter
-       combinations, so mu1,sd1; mu1,sd2; mu2,sd1; mu2,sd2  etc.
-       and need to calculate F for every value in stimDomain for each of these 
-       combinations. So we need to specify for model that there are N parameters 
-      ( 4 four the gauss)
-    */
+    
+    }
+    double getTargetStim() {
+        double[][][] postTimesL = new double [paramDomain.size()][stimDomain.size()][2];
+        
+        /*not sure about all this....*/
+        ListIterator iterPost = posterior.listIterator();
+        int ii =0;
+        double[][] pk = new double[paramDomain.size()][2];
+        while (iterPost.hasNext()) {
+            double postval = (double) iterPost.next();
+            for (int kk=0;kk<2;kk++) {
+                pk[ii][kk]=0;
+                for (int jj=0; jj< stimDomain.size(); jj++) {
+                    postTimesL[ii][jj][kk]= postval*likelihoods[ii][jj][kk];
+                    pk[ii][kk]+=postTimesL[ii][jj][kk];
+                }               
+            }
+            ii++;
+        }
+
+         iterPost = posterior.listIterator();
+        ii =0;
+        double[][]H = new double[paramDomain.size()][2];
+        double[] EH = new double[paramDomain.size()];
+        for (ii=0; ii< paramDomain.size(); ii++) {
+            EH[ii]=0;
+            double EHsum=0;
+            for (int kk=0;kk<2;kk++) {
+                H[ii][kk]=0;
+                for (int jj=0; jj< stimDomain.size(); jj++) {
+                    EHsum=0;
+                    double newPost = postTimesL[ii][jj][kk]/pk[ii][kk];
+                    postTimesL[ii][jj][kk]/= pk[ii][kk];
+                    H[ii][kk]+=postTimesL[ii][jj][kk]*Math.log(postTimesL[ii][jj][kk]);
+                    EHsum+=H[ii][kk]*pk[ii][kk];
+                }               
+            }       
+            EH[ii]=EHsum;
+        }
+
+        
+//            
+//        }
+        return 3;
     }
     void printList(List l) {
         ListIterator iter = l.listIterator();
