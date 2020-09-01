@@ -40,6 +40,7 @@ public class QuestPlus {
     float stopCriterion = 3; // no. of trial or entropy. 
     int minNTrials = 0;
     int maxNTrials = 30000;
+    int nTrialsCompleted=0;
 
     int stimSelectionMethod = STIM_MIN;
     int stimSelectionParam = 2;
@@ -50,8 +51,8 @@ public class QuestPlus {
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
     double [] posterior;
-    List<Double> historyStim;
-    List<Boolean> historyResp;
+    List historyStim = new ArrayList();
+    List<Boolean> historyResp = new ArrayList();
 
     QuestPlus() {
     }
@@ -187,7 +188,7 @@ public class QuestPlus {
         }
     
     }
-    double getTargetStim() {
+    List getTargetStim() {
         double[][][] postTimesL = new double [paramDomain.size()][stimDomain.size()][2];
         
         /*not sure about all this....*/
@@ -197,15 +198,15 @@ public class QuestPlus {
 //        while (iterPost.hasNext()) {
 //            double postval = (double) iterPost.next();
         for (int ii=0;ii<posterior.length; ii++ ){
-            double postval = posterior[ii];
+//            double postval = posterior[ii];
             for (int kk=0;kk<2;kk++) {
                 pk[ii][kk]=0;
                 for (int jj=0; jj< stimDomain.size(); jj++) {
-                    postTimesL[ii][jj][kk]= postval*likelihoods[ii][jj][kk];
+                    postTimesL[ii][jj][kk]= posterior[ii]*likelihoods[ii][jj][kk];
                     pk[ii][kk]+=postTimesL[ii][jj][kk];
                 }               
             }
-            ii++;
+//            ii++;
         }
 
 //         iterPost = posterior.listIterator();
@@ -227,11 +228,89 @@ public class QuestPlus {
             }       
             EH[ii]=EHsum;
         }
-
+        // select stimulus. 
+        // using just the default 'min' stimSelectionMethod
+        double maxv = Double. MAX_VALUE;
+        int idx=-1;
+        for (int ii=0; ii< EH.length; ii++) {
+            if (EH[ii] < maxv ) {
+                maxv = EH[ii];
+                idx=ii;
+            }
+        }
+        List out = new ArrayList(2);
         
+        out.add(0,stimDomain.get(idx));
+        out.add(1,idx);
+        // assuming that stimConstrainToNOfPrev is not set.
 //            
 //        }
-        return 3;
+        return (out);
+    }
+    
+    void update(int stimIdx,boolean resp) { //TODO ?stim not stimIdx
+        int r=0;
+        double sum=0;
+        if (resp) r=1;
+        for (int ii=0;ii<posterior.length;ii++) {
+            posterior[ii] = posterior[ii]*likelihoods[ii][stimIdx][r];
+            sum+=posterior[ii];
+        }
+        for (int ii=0;ii<posterior.length;ii++) {
+            posterior[ii]/=sum;
+        }
+        historyStim.add(stimDomain.get(stimIdx));
+        historyResp.add(resp);
+        nTrialsCompleted++;
+    }
+    
+    boolean isFinished() {
+        
+        if (nTrialsCompleted < minNTrials) return false;
+        if (nTrialsCompleted > maxNTrials) return true;
+        switch (stopRule) {
+            
+            case STDEV: 
+                return stdev() <= stopCriterion;                     
+            case ENTROPY:
+                return entropy() <= stopCriterion;                     
+            case NTRIALS:
+                return false;
+            default: 
+                return false;        
+        }
+                
+        
+    }
+    
+    double stdev() {
+
+        int ii=0;
+        double sum1=0;
+        double sum2=0;
+        ListIterator iter = paramDomain.listIterator();
+        while (iter.hasNext()) {
+            double d = (double)(iter.nextIndex());
+            sum1+=posterior[ii]*d*d;
+            sum2+=posterior[ii]*d;
+            ii++;
+        }
+        return Math.sqrt(sum1 - sum2*sum2);
+    }
+    
+    double entropy() {
+        
+        double sum1=0;
+        double  lg2 = Math.log(2);
+        for (int ii=0;ii<posterior.length; ii++) {
+            double log = Math.log(posterior[ii])/lg2;
+            if (log !=Double.NaN) {
+                sum1 -= log*posterior[ii];
+            }
+        }
+        return sum1;
+        //H = -nansum(obj.posterior .* log2(obj.posterior), 2);
+
     }
     void printList(List l) {
         ListIterator iter = l.listIterator();
@@ -338,4 +417,5 @@ public class QuestPlus {
         }
         return resultLists;
     }
-}
+    
+    }
