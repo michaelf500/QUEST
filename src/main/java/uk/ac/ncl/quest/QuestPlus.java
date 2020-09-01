@@ -242,7 +242,7 @@ public class QuestPlus {
     }
     void printArray(double[] d) {
         for (int ii=0;ii<d.length; ii++) {
-            System.out.println(d);
+            System.out.println(d[ii]);
         }
     }
     void testQuest() {
