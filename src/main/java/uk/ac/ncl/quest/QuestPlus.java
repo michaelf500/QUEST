@@ -44,11 +44,12 @@ public class QuestPlus {
     int stimSelectionMethod = STIM_MIN;
     int stimSelectionParam = 2;
     int stimConstrainToNOfPrev[] = {}; //TODO
-    List prior; //containing probability of each parameter-combination
+    //List prior; //containing probability of each parameter-combination
+    double [] prior;
     double[][][] likelihoods;
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
-    List posterior;
+    double [] posterior;
     List<Double> historyStim;
     List<Boolean> historyResp;
 
@@ -73,7 +74,7 @@ public class QuestPlus {
         // aslo that stimDomain is an ArrayList
         
         // set up uniform priors.
-        prior = new ArrayList(paramD.size());
+        List priorTmp = new ArrayList(paramD.size());
         ListIterator iter = paramD.listIterator();
         while (iter.hasNext()) {
             int nn = ((List)iter.next()).size();
@@ -81,14 +82,17 @@ public class QuestPlus {
             for (int i =0; i< nn; i++) {
                 al.add(1.0/nn);
             }
-            prior.add(al);
+            priorTmp.add(al);
         }
-        if (prior.size() > 1) {
-            prior = cartesianProduct(prior);
-            make2D(prior);
+        if (priorTmp.size() > 1) {
+            priorTmp = cartesianProduct(priorTmp);
+            make2D(priorTmp);
         }
-        ArrayList A = new ArrayList(prior.size());
-        iter = prior.listIterator();
+        
+//        ArrayList A = new ArrayList(priorTmp.size());
+        prior = new double [priorTmp.size()];
+        iter = priorTmp.listIterator();
+        int ii=0;
         ListIterator iter2;
         // multiply elements together
         double sum=0;
@@ -99,21 +103,28 @@ public class QuestPlus {
             while (iter2.hasNext()) {
                 t*=(double)iter2.next();
             }
-            A.add(t);
+            prior[ii] = t;
+            ii++;
+//            A.add(t);
             sum+=t;
         }
+
+
         // normalise by total sum
-        iter = A.listIterator();
-        while (iter.hasNext()) {
-            double t = (double)iter.next();
-            t /= sum;
-            iter.set(t);
+//        iter = A.listIterator();
+//        while (iter.hasNext()) {
+        for (ii = 0 ;ii<prior.length; ii++) {
+            prior[ii]/=sum;
+//            double t = (double)iter.next();
+//            t /= sum;
+//            iter.set(t);
         }
-        prior = A;
+//        prior = A;
 
 
 
         if (paramD.size() ==1 ){
+            
             paramDomain = paramD;
         } else { //make combination matrix
             paramDomain = cartesianProduct(paramD); 
@@ -146,7 +157,7 @@ public class QuestPlus {
         double[] vals = new double[vF.getNParams()]; 
         ArrayList valsA ;
         iter = paramDomain.listIterator();
-        int ii=0;
+        ii=0;
         int jj;
         while (iter.hasNext()) {
             ListIterator iter3 = stimDomain.listIterator();
@@ -165,23 +176,28 @@ public class QuestPlus {
             
             ii++;
         }
-        posterior = new ArrayList(prior.size());
-        iter = prior.listIterator();
-        while (iter.hasNext()) {
-            posterior.add(iter.next());
+//        posterior = new ArrayList(prior.size());
+//        iter = prior.listIterator();
+//        while (iter.hasNext()) {
+//            posterior.add(iter.next());
+//        }
+        posterior = new double[prior.length];
+        for (ii=0;ii<posterior.length; ii++ ) {
+            posterior[ii] = prior[ii];
         }
-                    
     
     }
     double getTargetStim() {
         double[][][] postTimesL = new double [paramDomain.size()][stimDomain.size()][2];
         
         /*not sure about all this....*/
-        ListIterator iterPost = posterior.listIterator();
-        int ii =0;
+//        ListIterator iterPost = posterior.listIterator();
+//        int ii =0;
         double[][] pk = new double[paramDomain.size()][2];
-        while (iterPost.hasNext()) {
-            double postval = (double) iterPost.next();
+//        while (iterPost.hasNext()) {
+//            double postval = (double) iterPost.next();
+        for (int ii=0;ii<posterior.length; ii++ ){
+            double postval = posterior[ii];
             for (int kk=0;kk<2;kk++) {
                 pk[ii][kk]=0;
                 for (int jj=0; jj< stimDomain.size(); jj++) {
@@ -192,11 +208,11 @@ public class QuestPlus {
             ii++;
         }
 
-         iterPost = posterior.listIterator();
-        ii =0;
+//         iterPost = posterior.listIterator();
+//        ii =0;
         double[][]H = new double[paramDomain.size()][2];
         double[] EH = new double[paramDomain.size()];
-        for (ii=0; ii< paramDomain.size(); ii++) {
+        for (int ii=0; ii< paramDomain.size(); ii++) {
             EH[ii]=0;
             double EHsum=0;
             for (int kk=0;kk<2;kk++) {
@@ -222,6 +238,11 @@ public class QuestPlus {
         
         while (iter.hasNext()) {
             System.out.println(iter.next());
+        }
+    }
+    void printArray(double[] d) {
+        for (int ii=0;ii<d.length; ii++) {
+            System.out.println(d);
         }
     }
     void testQuest() {
@@ -270,6 +291,32 @@ public class QuestPlus {
             }
         }
     }
+//    double [][] make2DArray(List l) {
+//        /* which converts a list of lists into a 2D array.
+//        * which I am hoping will be a bit simpler to manipulate
+//        */
+//        
+//        int ii=0;
+//        int jj=0;
+//                
+//        double [][] tmp = new double [l.size()][((List)(l.get(0))).size()];
+//        ListIterator iter = l.listIterator();
+//         while (iter.hasNext()) {
+//            Object eEl= iter.next();
+//            if (eEl instanceof java.util.ArrayList) { // if not, not sure what to do...
+//                ListIterator iter2 = ((java.util.ArrayList)eEl).listIterator();
+//                while (iter2.hasNext()) {
+//                    tmp[ii][jj]=(double) iter2.next();
+//                    jj++;
+//                }
+//            }
+//            ii++;
+//         }
+//         return tmp;       
+//                
+//
+//        
+//    }
     private static <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
         // stolen from https://stackoverflow.com/questions/714108/cartesian-product-of-arbitrary-sets-in-java/10083452#10083452
         List<List<T>> resultLists = new ArrayList<List<T>>();

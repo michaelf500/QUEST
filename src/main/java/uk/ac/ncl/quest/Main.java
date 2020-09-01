@@ -43,8 +43,10 @@ public class Main {
         
         QuestPlus qpA = new QuestPlus(QuestPlus.GAUSSIAN_MODEL,stimD,paramD,2.5);
         qpA.printList(qpA.paramDomain);
+        qpA.getTargetStim();
         System.out.println("Size param: " + qpA.paramDomain.size());
-        qpA.printList(qpA.prior);
+        qpA.printArray(qpA.prior);
+//        qpA.printList(qpA.prior);
 //        qpA.testQuest();
 //        
 //        ArrayList a = new ArrayList(6);
