@@ -35,9 +35,24 @@ public class QuestPlus {
     /* vector/ matrix of possible values (mu, sigma etc
 	for the function F. */
     List stimDomain;
+    /* So I [MJF] am only considering the case of one variable in the 
+    * stim domain (ie angle 0 - 90) 
+    * so stimDomain is a vector with n values [ie 0,2,4 ... 90]
+    * for paramDomain I am considering having ability to 
+    * determine (eg) mu and sigma, each of which has a range of 
+    * possible values, so for m possibilities for mu and s for sigma,
+    * paramDomain would be a m*s by 2 List
+    *
+    * So I think that what in matlab is a matrix eg
+    * 0 1 2 3 4 
+    * 8 9 2 3 5
+    *
+    * ie 2 x 5 matrix (where row is first dimension
+    * ends up a a List of 5 [2 item Lists]
+    */
     boolean respDomain; //possible responses. I'm only considering correct/wrong.
-    int stopRule = ENTROPY;
-    float stopCriterion = 3; // no. of trial or entropy. 
+    int stopRule = ENTROPY; //nb STDEV only works with 1D params
+    double stopCriterion = 3; // no. of trial or entropy. 
     int minNTrials = 0;
     int maxNTrials = 30000;
     int nTrialsCompleted=0;
@@ -46,8 +61,8 @@ public class QuestPlus {
     int stimSelectionParam = 2;
     int stimConstrainToNOfPrev[] = {}; //TODO
     //List prior; //containing probability of each parameter-combination
-    double [] prior;
-    double[][][] likelihoods;
+    double [] prior; // with size as paramDomain, ie m*s
+    double[][][] likelihoods; // [stim][param][resp] ie [n][m*s][2]
     /*2D matrix, containing conditional probabilities 
 	* of each outcome at each stimulus-combination/parameter-combination*/
     double [] posterior;
@@ -64,12 +79,23 @@ public class QuestPlus {
 		 * a) create param domain by combining all the possible parameter values
 		 * b) ditto for priors
          */
+        stopCriterion = stopC;
         if (F == QuestPlus.GAUSSIAN_MODEL) {
             vF = new NormCDF();
         } else {
             return;
         }
         stimDomain = stimD;
+
+        if (paramD.size() ==1 ){
+            
+            paramDomain = paramD;
+        } else { //make combination matrix
+            paramDomain = cartesianProduct(paramD); 
+            make2D(paramDomain);
+        }
+        
+/* note from here on, is 'initialise' in the original matlab */
         
         //TODO: add check paramD is ArrayList. Should have vF.getNParam members.
         // aslo that stimDomain is an ArrayList
@@ -124,14 +150,6 @@ public class QuestPlus {
 
 
 
-        if (paramD.size() ==1 ){
-            
-            paramDomain = paramD;
-        } else { //make combination matrix
-            paramDomain = cartesianProduct(paramD); 
-            make2D(paramDomain);
-        }
-        
         
         /*
         % if response domain is binary, and function only
@@ -154,7 +172,7 @@ public class QuestPlus {
        and need to calculate F for every value in stimDomain for each of these 
        combinations. So we need to specify for model that there are N parameters 
       ( 4 four the gauss)
-    */    likelihoods = new double [paramDomain.size()][stimDomain.size()][2];
+    */    likelihoods = new double [stimDomain.size()][paramDomain.size()][2];
         double[] vals = new double[vF.getNParams()]; 
         ArrayList valsA ;
         iter = paramDomain.listIterator();
@@ -170,8 +188,8 @@ public class QuestPlus {
             jj=0;
             while (iter3.hasNext()) {
                 double tmpV = vF.getValue((double)iter3.next(),vals);
-                likelihoods[ii][jj][0] = 1-tmpV;
-                likelihoods[ii][jj][1] = tmpV;
+                likelihoods[jj][ii][0] = 1-tmpV;
+                likelihoods[jj][ii][1] = tmpV;
                 jj++;
             }
             
@@ -186,24 +204,24 @@ public class QuestPlus {
         for (ii=0;ii<posterior.length; ii++ ) {
             posterior[ii] = prior[ii];
         }
-    
+
     }
     List getTargetStim() {
-        double[][][] postTimesL = new double [paramDomain.size()][stimDomain.size()][2];
+        double[][][] postTimesL = new double [stimDomain.size()][paramDomain.size()][2];
         
         /*not sure about all this....*/
 //        ListIterator iterPost = posterior.listIterator();
 //        int ii =0;
-        double[][] pk = new double[paramDomain.size()][2];
+        double[][] pk = new double[stimDomain.size()][2];
 //        while (iterPost.hasNext()) {
 //            double postval = (double) iterPost.next();
-        for (int ii=0;ii<posterior.length; ii++ ){
+        for (int jj=0; jj< stimDomain.size(); jj++) {
 //            double postval = posterior[ii];
             for (int kk=0;kk<2;kk++) {
-                pk[ii][kk]=0;
-                for (int jj=0; jj< stimDomain.size(); jj++) {
-                    postTimesL[ii][jj][kk]= posterior[ii]*likelihoods[ii][jj][kk];
-                    pk[ii][kk]+=postTimesL[ii][jj][kk];
+                pk[jj][kk]=0;
+                for (int ii=0;ii<posterior.length; ii++ ){
+                    postTimesL[jj][ii][kk]= posterior[ii]*likelihoods[jj][ii][kk];
+                    pk[jj][kk]+=postTimesL[jj][ii][kk];
                 }               
             }
 //            ii++;
@@ -211,37 +229,42 @@ public class QuestPlus {
 
 //         iterPost = posterior.listIterator();
 //        ii =0;
-        double[][]H = new double[paramDomain.size()][2];
-        double[] EH = new double[paramDomain.size()];
-        for (int ii=0; ii< paramDomain.size(); ii++) {
+        double[][]H = new double[stimDomain.size()][2];
+        double[] EH = new double[stimDomain.size()];
+        for (int ii=0; ii< stimDomain.size(); ii++) {
             EH[ii]=0;
             double EHsum=0;
+            EHsum=0;
             for (int kk=0;kk<2;kk++) {
                 H[ii][kk]=0;
-                for (int jj=0; jj< stimDomain.size(); jj++) {
-                    EHsum=0;
-                    double newPost = postTimesL[ii][jj][kk]/pk[ii][kk];
+                for (int jj=0; jj< paramDomain.size(); jj++) {
+                    //double newPost = postTimesL[ii][jj][kk]/pk[ii][kk];
                     postTimesL[ii][jj][kk]/= pk[ii][kk];
-                    H[ii][kk]+=postTimesL[ii][jj][kk]*Math.log(postTimesL[ii][jj][kk]);
-                    EHsum+=H[ii][kk]*pk[ii][kk];
-                }               
+                    double tmp = postTimesL[ii][jj][kk]*Math.log(postTimesL[ii][jj][kk]);
+                    if (tmp != Double.NaN) {
+                        H[ii][kk]-=tmp;
+                    } 
+                }
+                EHsum+=H[ii][kk]*pk[ii][kk];
             }       
             EH[ii]=EHsum;
+//            System.err.println("EHSum"+EHsum);
         }
         // select stimulus. 
         // using just the default 'min' stimSelectionMethod
         double maxv = Double. MAX_VALUE;
         int idx=-1;
         for (int ii=0; ii< EH.length; ii++) {
+            System.err.println("EH"+ii+"  "+EH[ii]);
             if (EH[ii] < maxv ) {
                 maxv = EH[ii];
                 idx=ii;
             }
         }
         List out = new ArrayList(2);
-        
+        if (idx >= 0) {
         out.add(0,stimDomain.get(idx));
-        out.add(1,idx);
+        out.add(1,idx);}
         // assuming that stimConstrainToNOfPrev is not set.
 //            
 //        }
@@ -263,7 +286,7 @@ public class QuestPlus {
         historyResp.add(resp);
         nTrialsCompleted++;
     }
-    
+
     boolean isFinished() {
         
         if (nTrialsCompleted < minNTrials) return false;
@@ -282,9 +305,33 @@ public class QuestPlus {
                 
         
     }
+    double [] getParamEsts() {//TODO
+/*        [~,paramIdx] = min(sqrt(mean(
+                bsxfun(@minus, obj.paramDomain, 
+                   sum(bsxfun(@times, obj.posterior, obj.paramDomain), 2)
+                ).^2,1)));*/
+        double [] out = new double [paramDomain.size()];
+        ListIterator iter = paramDomain.listIterator();
+        
+        double [][] tmp = new double[paramDomain.size()]
+                [((List)paramDomain.get(0)).size()]; 
+        int ii=0;
+        int jj=0;
+        while (iter.hasNext()) {
+            jj=0;
+            ListIterator iter2= ((ArrayList)iter.next()).listIterator();
+            //double v =0;
+            while (iter2.hasNext()) {
+                tmp[ii][jj] = (double)iter2.next()*posterior[ii];
+                jj++;
+            }
+            ii++;
+        }
+        return out;
+    }
     
     double stdev() {
-
+//TODO: note that stdev only works with 1D param space. need to check
         int ii=0;
         double sum1=0;
         double sum2=0;
@@ -322,6 +369,24 @@ public class QuestPlus {
     void printArray(double[] d) {
         for (int ii=0;ii<d.length; ii++) {
             System.out.println(d[ii]);
+        }
+    }
+    void printArray(double[][] d) {
+        for (int ii=0;ii<d.length; ii++) {
+            for (int jj=0;jj<d[0].length; jj++) {
+                System.out.println(d[ii][jj]);
+            
+            }
+        }
+    }
+    void printArray(double[][][] d) {
+        for (int ii=0;ii<d.length; ii++) {
+            for (int jj=0;jj<d[0].length; jj++) {
+                for (int kk=0;kk<d[0][0].length; kk++) {
+                System.out.print(d[ii][jj][kk] +" ");            
+            }
+            System.out.println(";");
+        }
         }
     }
     void testQuest() {
