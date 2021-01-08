@@ -106,7 +106,6 @@ public class QuestPlus {
             paramDomain = cartesianProduct(paramD); 
             make2D(paramDomain);
         }
-        System.err.println("pd size"+paramDomain.size());
 /* note from here on, is 'initialise' in the original matlab */
         
         //TODO: add check paramD is ArrayList. Should have vF.getNParam members.
@@ -114,6 +113,7 @@ public class QuestPlus {
         
         // set up uniform priors.
         List priorTmp = new ArrayList(paramD.size());
+        iter = paramD.listIterator();
         while (iter.hasNext()) {
             int nn = ((List)iter.next()).size();
             ArrayList al = new ArrayList(nn);
@@ -252,7 +252,7 @@ public class QuestPlus {
                     //double newPost = postTimesL[ii][jj][kk]/pk[ii][kk];
                     postTimesL[ii][jj][kk]/= pk[ii][kk];
                     double tmp = postTimesL[ii][jj][kk]*Math.log(postTimesL[ii][jj][kk]);
-                    if (tmp != Double.NaN) {
+                    if (!Double.isNaN(tmp)) {
                         H[ii][kk]-=tmp;
                     } 
                 }
@@ -362,7 +362,7 @@ public class QuestPlus {
         double  lg2 = Math.log(2);
         for (int ii=0;ii<posterior.length; ii++) {
             double log = Math.log(posterior[ii])/lg2;
-            if (log !=Double.NaN) {
+            if (!Double.isNaN(log)) {
                 sum1 -= log*posterior[ii];
             }
         }
