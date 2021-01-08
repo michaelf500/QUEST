@@ -17,27 +17,58 @@ public class NormCDF implements CDF{
 //    NormCDF(double m, double s) {
 //        nd = ;
 //    }
-    public int getNParams() {
-    return 4; // no. of values getValue is expecting in vals.
+//        double m;//=0
+//        double s;//=1
+//        double l;//=0
+//        double g;//=0.5
+        double[] params = {0,1,0,0.5};
+        int nparams = 0;
+        
+        NormCDF(double [] par) {
+            /* par is an array of size 4, 
+            with those values to be estimated as Double.NaN
+            fixed values are passed. 
+            in order mean, sd,lambda, gamma
+            */
+            if (par.length!=params.length) {
+                throw new IllegalArgumentException("Wrong size array "+
+                        par.length+"- should be "+params.length);
+            }
+            for (int j=0;j<par.length; j++) {
+                params[j] = par[j];
+                if (par[j]==Double.NaN) {
+                    nparams++;
+                }
+            }
+        }
+    public int getNParams(double[] par) {
+        
+        return nparams; // no. of values getValue is expecting in vals.
     } 
     public double getValue(double x,double[] vals) {
-        double m=0;
-        double s=0;
-        double l=0;
-        double g=0.5;
-        if (vals.length >=4) {
-            g=vals[3]; 
+        if (vals.length!=nparams) {
+                throw new IllegalArgumentException("Wrong size array "+
+                        vals.length+"- should be "+nparams);
+            }
+        int j=0;
+        double[] par = new double [params.length];
+        for (int i=0; i<params.length; i++) {
+            if (params[i] == Double.NaN) {
+                par[i] = vals[j];
+                j++;
+            } else {
+                par[i] = params[i];
+            }
+                
         }
-        if  (vals.length >=3) {
-            l=vals[2];
-        }
-        if  (vals.length >=2) {
-            s=vals[1];
-        } 
-        if  (vals.length >=1) {
-            m=vals[0];
-        }                
-        return (g+(1-l-g)*(new NormalDistribution(m,s)).cumulativeProbability(x));
+        //throw new IllegalArgumentException("Wrong type passed");
+
+//            g=vals[3]; 
+//            l=vals[2];
+//            s=vals[1];
+//            m=vals[0];
+        return (par[3]+(1-par[2]-par[3])*
+                (new NormalDistribution(par[0],par[1])).cumulativeProbability(x));
     }
             
 }

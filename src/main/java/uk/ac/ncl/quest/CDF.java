@@ -11,5 +11,5 @@ package uk.ac.ncl.quest;
  */
 public interface CDF {
     double getValue(double x,double[] vals);
-    int getNParams();
+    int getNParams(double[] par);
 }
