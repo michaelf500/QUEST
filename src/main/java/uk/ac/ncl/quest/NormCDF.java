@@ -36,7 +36,7 @@ public class NormCDF implements CDF{
             }
             for (int j=0;j<par.length; j++) {
                 params[j] = par[j];
-                if (par[j]==Double.NaN) {
+                if (Double.isNaN(par[j])) {
                     nparams++;
                 }
             }
