@@ -59,7 +59,7 @@ public class NormCDF implements CDF{
             } else {
                 par[i] = params[i];
             }
-                
+
         }
         //throw new IllegalArgumentException("Wrong type passed");
 

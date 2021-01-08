@@ -29,23 +29,24 @@ public class Main {
     }
     public static void main(String[] args) {
 
-        ArrayList a = linspace(-2,2,5);
+        ArrayList a = linspace(-8,8,30);//(-2,2,5);//
         ArrayList b = linspace(3,5,3);
         ArrayList c = linspace(1,1,1);
         ArrayList d = linspace(0,0,1);
         ArrayList paramD = new ArrayList();
         paramD.add(a);
-        paramD.add(b);
-        paramD.add(c);
-        paramD.add(d);
-        ArrayList stimD =linspace(-8,8,30);
-        
-        
-        QuestPlus qpA = new QuestPlus(QuestPlus.GAUSSIAN_MODEL,stimD,paramD,2.5);
+//        paramD.add(b);
+//        paramD.add(c);
+//        paramD.add(d);
+        ArrayList stimD =linspace(-10,10,50);//(-8,8,30);//
+        double[] fixedp= {Double.NaN,1,0,0.5};
+        QuestPlus qpA = new QuestPlus(QuestPlus.GAUSSIAN_MODEL,stimD,paramD,2.5,fixedp);
         qpA.printList(qpA.paramDomain);
-        qpA.getTargetStim();
+        System.out.println("Target Stim: ");
+        qpA.printList(qpA.getTargetStim());
+        System.out.println("----- ");
         System.out.println("Size param: " + qpA.paramDomain.size());
-        qpA.printArray(qpA.prior);
+        //qpA.printArray(qpA.posterior);
 //        qpA.printList(qpA.prior);
 //        qpA.testQuest();
 //        

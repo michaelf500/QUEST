@@ -72,29 +72,41 @@ public class QuestPlus {
     QuestPlus() {
     }
 
-    QuestPlus(int F, ArrayList stimD, ArrayList paramD,  double stopC) {
+    QuestPlus(int F, ArrayList stimD, ArrayList paramD,  double stopC, double[] params) {
         /*
             * paramD needs to be an ArrayList containing at least one ArrayList
 		 * So this needs to
 		 * a) create param domain by combining all the possible parameter values
 		 * b) ditto for priors
          */
+        //TODO: check 
         stopCriterion = stopC;
         if (F == QuestPlus.GAUSSIAN_MODEL) {
-            vF = new NormCDF();
+            vF = new NormCDF(params);
         } else {
             return;
         }
         stimDomain = stimD;
-
+        ListIterator iter = paramD.listIterator();
+        if (vF.getNParams()!=paramD.size()) {
+            throw new IllegalArgumentException("NANs must match params to be estimated");    
+        }
         if (paramD.size() ==1 ){
-            
-            paramDomain = paramD;
+            /* rotate to make n lists, rather than 1 list of n*/
+            paramDomain = new ArrayList();
+            ArrayList row = (ArrayList)iter.next();
+            ListIterator   iter2 = row.listIterator();
+            while (iter2.hasNext()) {
+                List priorTmp = new ArrayList();
+                priorTmp.add(iter2.next());
+                paramDomain.add(priorTmp);
+            }
+
         } else { //make combination matrix
             paramDomain = cartesianProduct(paramD); 
             make2D(paramDomain);
         }
-        
+        System.err.println("pd size"+paramDomain.size());
 /* note from here on, is 'initialise' in the original matlab */
         
         //TODO: add check paramD is ArrayList. Should have vF.getNParam members.
@@ -102,7 +114,6 @@ public class QuestPlus {
         
         // set up uniform priors.
         List priorTmp = new ArrayList(paramD.size());
-        ListIterator iter = paramD.listIterator();
         while (iter.hasNext()) {
             int nn = ((List)iter.next()).size();
             ArrayList al = new ArrayList(nn);
