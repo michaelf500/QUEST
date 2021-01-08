@@ -93,15 +93,7 @@ public class QuestPlus {
         }
         if (paramD.size() ==1 ){
             /* rotate to make n lists, rather than 1 list of n*/
-            paramDomain = new ArrayList();
-            ArrayList row = (ArrayList)iter.next();
-            ListIterator   iter2 = row.listIterator();
-            while (iter2.hasNext()) {
-                List priorTmp = new ArrayList();
-                priorTmp.add(iter2.next());
-                paramDomain.add(priorTmp);
-            }
-
+            paramDomain = row2Col(paramD);
         } else { //make combination matrix
             paramDomain = cartesianProduct(paramD); 
             make2D(paramDomain);
@@ -125,8 +117,12 @@ public class QuestPlus {
         if (priorTmp.size() > 1) {
             priorTmp = cartesianProduct(priorTmp);
             make2D(priorTmp);
+        } else {
+            priorTmp = row2Col(priorTmp);
         }
-        
+        System.err.println("prior size: "+priorTmp.size());
+        this.printList(priorTmp);
+        System.err.println(" ");
 //        ArrayList A = new ArrayList(priorTmp.size());
         prior = new double [priorTmp.size()];
         iter = priorTmp.listIterator();
@@ -198,7 +194,9 @@ public class QuestPlus {
             }
             jj=0;
             while (iter3.hasNext()) {
-                double tmpV = vF.getValue((double)iter3.next(),vals);
+                double dddd=(double)iter3.next();
+                double tmpV = vF.getValue(dddd,vals);
+//                System.err.println("t "+vals[0]+" "+tmpV+" "+dddd);
                 likelihoods[jj][ii][0] = 1-tmpV;
                 likelihoods[jj][ii][1] = tmpV;
                 jj++;
@@ -492,6 +490,20 @@ public class QuestPlus {
             }
         }
         return resultLists;
+    }
+    private static <T> List<List<T>> row2Col(List<List<T>> paramD) {
+        // turn a list of a list to 
+        // a list of 1 item lists
+            ListIterator iter = paramD.listIterator();
+            ArrayList paramDomain = new ArrayList();
+            ArrayList row = (ArrayList)iter.next();
+            ListIterator   iter2 = row.listIterator();
+            while (iter2.hasNext()) {
+                List priorTmp = new ArrayList();
+                priorTmp.add(iter2.next());
+                paramDomain.add(priorTmp);
+            }
+            return paramDomain;
     }
     
     }
