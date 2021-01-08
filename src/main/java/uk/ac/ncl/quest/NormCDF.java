@@ -53,7 +53,7 @@ public class NormCDF implements CDF{
         int j=0;
         double[] par = new double [params.length];
         for (int i=0; i<params.length; i++) {
-            if (params[i] == Double.NaN) {
+            if (Double.isNaN(params[i])) {
                 par[i] = vals[j];
                 j++;
             } else {
