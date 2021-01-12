@@ -334,9 +334,13 @@ public class QuestPlus {
         double sum2=0;
         ListIterator iter = paramDomain.listIterator();
         while (iter.hasNext()) {
-            double d = (double)(iter.nextIndex());
-            sum1+=posterior[ii]*d*d;
-            sum2+=posterior[ii]*d;
+            // parramDomain is a list of a list. Yes, even for the 1D case...
+            ListIterator iter2= ((ArrayList)iter.next()).listIterator();
+            while (iter2.hasNext()) {
+                double d = (double)(iter2.next());
+                sum1+=posterior[ii]*d*d;
+                sum2+=posterior[ii]*d;
+            }
             ii++;
         }
         return Math.sqrt(sum1 - sum2*sum2);
