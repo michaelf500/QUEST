@@ -123,7 +123,6 @@ public class QuestPlus {
 //        System.err.println("prior size: "+priorTmp.size());
 //        this.printList(priorTmp);
 //        System.err.println(" ");
-//        ArrayList A = new ArrayList(priorTmp.size());
         prior = new double [priorTmp.size()];
         iter = priorTmp.listIterator();
         int ii=0;
@@ -139,21 +138,14 @@ public class QuestPlus {
             }
             prior[ii] = t;
             ii++;
-//            A.add(t);
             sum+=t;
         }
 
 
         // normalise by total sum
-//        iter = A.listIterator();
-//        while (iter.hasNext()) {
         for (ii = 0 ;ii<prior.length; ii++) {
             prior[ii]/=sum;
-//            double t = (double)iter.next();
-//            t /= sum;
-//            iter.set(t);
         }
-//        prior = A;
 
 
 
@@ -204,11 +196,6 @@ public class QuestPlus {
             
             ii++;
         }
-//        posterior = new ArrayList(prior.size());
-//        iter = prior.listIterator();
-//        while (iter.hasNext()) {
-//            posterior.add(iter.next());
-//        }
         posterior = new double[prior.length];
         for (ii=0;ii<posterior.length; ii++ ) {
             posterior[ii] = prior[ii];
@@ -251,7 +238,7 @@ public class QuestPlus {
                     //double newPost = postTimesL[ii][jj][kk]/pk[ii][kk];
                     postTimesL[ii][jj][kk]/= pk[ii][kk];
                     double tmp = postTimesL[ii][jj][kk]*Math.log(postTimesL[ii][jj][kk]);
-                    if (!Double.isNaN(tmp)) {
+                    if (!Double.isNaN(tmp)&&!Double.isInfinite(tmp)) {
                         H[ii][kk]-=tmp;
                     } 
                 }
@@ -361,7 +348,7 @@ public class QuestPlus {
         double  lg2 = Math.log(2);
         for (int ii=0;ii<posterior.length; ii++) {
             double log = Math.log(posterior[ii])/lg2;
-            if (!Double.isNaN(log)) {
+            if (!Double.isInfinite(log) && !Double.isNaN(log)) {
                 sum1 -= log*posterior[ii];
             }
         }
@@ -445,32 +432,7 @@ public class QuestPlus {
             }
         }
     }
-//    double [][] make2DArray(List l) {
-//        /* which converts a list of lists into a 2D array.
-//        * which I am hoping will be a bit simpler to manipulate
-//        */
-//        
-//        int ii=0;
-//        int jj=0;
-//                
-//        double [][] tmp = new double [l.size()][((List)(l.get(0))).size()];
-//        ListIterator iter = l.listIterator();
-//         while (iter.hasNext()) {
-//            Object eEl= iter.next();
-//            if (eEl instanceof java.util.ArrayList) { // if not, not sure what to do...
-//                ListIterator iter2 = ((java.util.ArrayList)eEl).listIterator();
-//                while (iter2.hasNext()) {
-//                    tmp[ii][jj]=(double) iter2.next();
-//                    jj++;
-//                }
-//            }
-//            ii++;
-//         }
-//         return tmp;       
-//                
-//
-//        
-//    }
+
     private static <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
         // stolen from https://stackoverflow.com/questions/714108/cartesian-product-of-arbitrary-sets-in-java/10083452#10083452
         List<List<T>> resultLists = new ArrayList<List<T>>();
