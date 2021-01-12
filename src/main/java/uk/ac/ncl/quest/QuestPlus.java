@@ -120,9 +120,9 @@ public class QuestPlus {
         } else {
             priorTmp = row2Col(priorTmp);
         }
-        System.err.println("prior size: "+priorTmp.size());
-        this.printList(priorTmp);
-        System.err.println(" ");
+//        System.err.println("prior size: "+priorTmp.size());
+//        this.printList(priorTmp);
+//        System.err.println(" ");
 //        ArrayList A = new ArrayList(priorTmp.size());
         prior = new double [priorTmp.size()];
         iter = priorTmp.listIterator();
@@ -196,7 +196,7 @@ public class QuestPlus {
             while (iter3.hasNext()) {
                 double dddd=(double)iter3.next();
                 double tmpV = vF.getValue(dddd,vals);
-//                System.err.println("t "+vals[0]+" "+tmpV+" "+dddd);
+                System.err.println("t "+dddd+" "+vals[0]+" "+tmpV);
                 likelihoods[jj][ii][0] = 1-tmpV;
                 likelihoods[jj][ii][1] = tmpV;
                 jj++;
@@ -217,7 +217,7 @@ public class QuestPlus {
     }
     List getTargetStim() {
         double[][][] postTimesL = new double [stimDomain.size()][paramDomain.size()][2];
-        
+
         /*not sure about all this....*/
 //        ListIterator iterPost = posterior.listIterator();
 //        int ii =0;
@@ -235,7 +235,8 @@ public class QuestPlus {
             }
 //            ii++;
         }
-
+        System.err.println("ptl");
+        printArray(postTimesL);
 //         iterPost = posterior.listIterator();
 //        ii =0;
         double[][]H = new double[stimDomain.size()][2];
@@ -285,7 +286,7 @@ public class QuestPlus {
         double sum=0;
         if (resp) r=1;
         for (int ii=0;ii<posterior.length;ii++) {
-            posterior[ii] = posterior[ii]*likelihoods[ii][stimIdx][r];
+            posterior[ii] = posterior[ii]*likelihoods[stimIdx][ii][r];
             sum+=posterior[ii];
         }
         for (int ii=0;ii<posterior.length;ii++) {
