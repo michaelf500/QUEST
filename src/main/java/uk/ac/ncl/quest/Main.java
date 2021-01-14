@@ -29,32 +29,33 @@ public class Main {
     }
     public static void main(String[] args) {
 
-        ArrayList a = linspace(-8,8,30);//(-2,2,5);//(-5,5,10);//
-        ArrayList b = linspace(.01,3,5);//(3,5,3);
+        ArrayList a = linspace(-5,5,20);//(-8,8,30);//(-2,2,5);//
+        ArrayList b = linspace(.01,3,25);//(3,5,3);
         ArrayList c = linspace(1,1,1);
         ArrayList d = linspace(0,0,1);
         ArrayList paramD = new ArrayList();
         paramD.add(a);
-//        paramD.add(b);
+        paramD.add(b);
 //        paramD.add(c);
 //        paramD.add(d);
-        ArrayList stimD =linspace(-10,10,50);//(-8,8,30);//(0,40,30);//
-        double[] fixedp= {Double.NaN,1,0,0};
-//        double[] fixedp= {Double.NaN,Double.NaN,0,0.5};
+        ArrayList stimD =linspace(0,40,30);//(-10,10,50);//(-8,8,30);//
+//        double[] fixedp= {Double.NaN,1,0,0};
+        double[] fixedp= {Double.NaN,Double.NaN,0,0};
         QuestPlus qpA = new QuestPlus(QuestPlus.GAUSSIAN_MODEL,stimD,paramD,2.5,fixedp);
         //qpA.printList(qpA.paramDomain);
         System.out.println("Posterior: ");
-        qpA.printArray(qpA.posterior);
-        qpA.printList(qpA.getTargetStim());
-        System.err.println("entropy: "+qpA.stdev());
-        qpA.update(25, false);
-        System.err.println("entropy: "+qpA.stdev());
-        qpA.printArray(qpA.posterior);
-        qpA.printList(qpA.getTargetStim());
-
-        qpA.update(35, false);
-        System.err.println("entropy: "+qpA.stdev());
-        qpA.printArray(qpA.posterior);
+//        qpA.printArray(qpA.posterior);
+        qpA.getTargetStim();
+//        qpA.printList(qpA.getTargetStim());
+        System.err.println("entropy: "+qpA.entropy());
+        qpA.update(0, false);
+        System.err.println("entropy: "+qpA.entropy());
+//        qpA.printArray(qpA.posterior);
+//        qpA.printList(qpA.getTargetStim());
+//
+//        qpA.update(35, false);
+//        System.err.println("entropy: "+qpA.stdev());
+//        qpA.printArray(qpA.posterior);
 //        System.out.println("Target Stim: ");
 //        qpA.printList(qpA.getTargetStim());
 //        System.out.println("----- ");

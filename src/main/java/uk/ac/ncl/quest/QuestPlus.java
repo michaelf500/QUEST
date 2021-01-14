@@ -20,6 +20,7 @@ import java.util.*;
 public class QuestPlus {
 
     static final int GAUSSIAN_MODEL = 1;
+    static final int WEIBULL_MODEL = 2;
 
     static final int ENTROPY = 1;
     static final int NTRIALS = 2;
@@ -83,6 +84,8 @@ public class QuestPlus {
         stopCriterion = stopC;
         if (F == QuestPlus.GAUSSIAN_MODEL) {
             vF = new NormCDF(params);
+        } else if (F == QuestPlus.WEIBULL_MODEL) {
+            vF = new WeibCDF(params);
         } else {
             return;
         }
