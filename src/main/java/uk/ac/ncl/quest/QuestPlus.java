@@ -191,7 +191,7 @@ public class QuestPlus {
             while (iter3.hasNext()) {
                 double dddd=(double)iter3.next();
                 double tmpV = vF.getValue(dddd,vals);
-                System.err.println("t "+dddd+" "+vals[0]+" "+tmpV);
+//                System.err.println("t "+dddd+" "+vals[0]+" "+tmpV);
                 likelihoods[jj][ii][0] = 1-tmpV;
                 likelihoods[jj][ii][1] = tmpV;
                 jj++;
@@ -206,6 +206,11 @@ public class QuestPlus {
 
     }
     List getTargetStim() {
+        /**
+        returns a list in which first is actual target value, 
+        second is the index in the stimDomain 
+        the latter being what you want for update command
+        */
         double[][][] postTimesL = new double [stimDomain.size()][paramDomain.size()][2];
 
         /*not sure about all this....*/
@@ -225,8 +230,8 @@ public class QuestPlus {
             }
 //            ii++;
         }
-        System.err.println("ptl");
-        printArray(postTimesL);
+//        System.err.println("ptl");
+//        printArray(postTimesL);
 //         iterPost = posterior.listIterator();
 //        ii =0;
         double[][]H = new double[stimDomain.size()][2];
@@ -255,7 +260,7 @@ public class QuestPlus {
         double maxv = Double. MAX_VALUE;
         int idx=-1;
         for (int ii=0; ii< EH.length; ii++) {
-            System.err.println("EH"+ii+"  "+EH[ii]);
+            //System.err.println("EH"+ii+"  "+EH[ii]);
             if (EH[ii] < maxv ) {
                 maxv = EH[ii];
                 idx=ii;
